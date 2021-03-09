@@ -1,0 +1,17 @@
+{
+  "name": "zoomino-macos",
+  "version": "1.0.0",
+  "description": "macOS side of Zoomino, controls Zoom.us via Apple Script",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Massimiliano Marcon <me@marcon.me>",
+  "license": "MIT",
+  "dependencies": {
+    "pino": "^6.11.1",
+    "run-applescript": "^5.0.0",
+    "serialport": "^9.0.7"
+  },
+  "type": "module"
+}
