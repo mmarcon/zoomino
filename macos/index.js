@@ -1,6 +1,11 @@
 import {runAppleScriptAsync} from 'run-applescript';
 
-const unmute = `
+const ZoomCommands = {
+	MUTE: 'Mute Audio',
+	UNMUTE: 'Unmute Audio'
+};
+
+const appleScript = (command) => `
 -- Function definitions
 -- https://hints.macworld.com/article.php?story=20060921045743404
 
@@ -41,9 +46,9 @@ end menu_click_recurse
 
 set zoom to "zoom.us"
 tell application zoom to activate
-menu_click({zoom, "Meeting", "Unmute Audio"})
+menu_click({zoom, "Meeting", "${command}"})
 `
 
-const result = await runAppleScriptAsync(unmute);
+const result = await runAppleScriptAsync(appleScript(ZoomCommands.MUTE));
 
 console.log(result);

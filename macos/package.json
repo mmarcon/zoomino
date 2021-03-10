@@ -13,5 +13,8 @@
     "run-applescript": "^5.0.0",
     "serialport": "^9.0.7"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "semistandard": "^16.0.0"
+  }
 }
