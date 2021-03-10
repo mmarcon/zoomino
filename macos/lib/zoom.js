@@ -49,7 +49,7 @@ tell application zoom to activate
 menu_click({zoom, "Meeting", "${command}"})
 `;
 
-export async function mute () {
+async function mute () {
   let result = false;
   try {
     result = await runAppleScriptAsync(appleScript(ZoomCommands.MUTE));
@@ -59,7 +59,7 @@ export async function mute () {
   return result;
 }
 
-export async function unmute () {
+async function unmute () {
   let result = false;
   try {
     result = await runAppleScriptAsync(appleScript(ZoomCommands.UNMUTE));
@@ -68,3 +68,7 @@ export async function unmute () {
   }
   return result;
 }
+
+const Zoom = { mute, unmute };
+
+export { Zoom };

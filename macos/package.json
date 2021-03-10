@@ -15,6 +15,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "pino-pretty": "^4.7.1",
     "semistandard": "^16.0.0"
   }
 }
