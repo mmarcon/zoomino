@@ -5,6 +5,12 @@ const ZoomCommands = {
   UNMUTE: 'Unmute Audio'
 };
 
+const ZoomState = {
+  MUTED: Symbol('muted'),
+  UNMUTED: Symbol('unmuted'),
+  UNKNOWN: Symbol('unknown')
+};
+
 const muteUnmuteScript = (command) => `
 -- Function definitions
 -- https://hints.macworld.com/article.php?story=20060921045743404
@@ -51,7 +57,6 @@ menu_click({zoom, "Meeting", "${command}"})
 
 const isMutedScript = () => `
 -- Function definitions
--- https://hints.macworld.com/article.php?story=20060921045743404
 
 on menu_exists(mList)
   local appName, topMenu, r
@@ -79,9 +84,9 @@ on menu_exists_recurse(mList, parentObject)
   tell application "System Events"
     if mList's length is 1 then
       if parentObject's menu item f exists then
-        return true
+        return 1
       else
-        return false
+        return 0
       end if
     else
       my menu_exists_recurse(r, (parentObject's (menu item f)'s (menu f)))
@@ -91,9 +96,10 @@ end menu_exists_recurse
 
 -- Actual code
 
+-- We don't need to activate it, the script can check the presence
+-- of the menu item anyways
 set zoom to "zoom.us"
-tell application zoom to activate
-menu_exists({zoom, "Meeting", ${ZoomCommands.UNMUTE}})
+menu_exists({zoom, "Meeting", "${ZoomCommands.UNMUTE}"})
 `;
 
 async function mute () {
@@ -117,13 +123,13 @@ async function unmute () {
 }
 
 async function isMuted () {
-  let result;
+  let result = ZoomState.UNKNOWN;
   try {
-    result = await runAppleScriptAsync(isMutedScript());
+    result = parseInt(await runAppleScriptAsync(isMutedScript()), 10) ? ZoomState.MUTED : ZoomState.UNMUTED;
   } catch {}
   return result;
 }
 
 const Zoom = { mute, unmute, isMuted };
 
-export { Zoom };
+export { Zoom, ZoomState };
