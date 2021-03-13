@@ -1,16 +1,37 @@
+#include <SimpleSerialProtocol.h>
+#include <Throttle.h>
+
+void onError(uint8_t errorNum);
+void onReceivedValues();
+
 #define LED_MUTE      12
 #define LED_UNMUTE     4
 #define BUTTON_MUTE    8
 #define BUTTON_UNMUTE  2
 
-#define MUTE_CMD       0
-#define UNMUTE_CMD     1
+// serial port config
+#define BAUDRATE 9600
+#define CHARACTER_TIMEOUT 500
+#define COMMAND_ID_RECEIVE 'r'
+#define COMMAND_ID_SEND 's'
 
-int mute = 0;
-int unmute = 0;
+/************************/
+#define CMD_MSG        0x0
+/************************/
+#define CMD_MUTE       0x0
+#define CMD_UNMUTE     0x1
+
+/************************/
+#define STATE_MSG      0x1
+/************************/
+#define STATE_MUTED    0x0
+#define STATE_UNMUTED  0x1
+
 int state = -1;
 
-char buff[16];
+SimpleSerialProtocol ssp(Serial, BAUDRATE, CHARACTER_TIMEOUT, onError, 'a', 'z');
+Throttle buttonMute = Throttle(BUTTON_MUTE);
+Throttle buttonUnmute = Throttle(BUTTON_UNMUTE);
 
 void setup()
 {
@@ -22,33 +43,51 @@ void setup()
   digitalWrite(LED_MUTE, LOW);
   Serial.begin(9600);
 
-  //TODO: sync state with computer
+  ssp.init();
+  ssp.registerCommand(COMMAND_ID_RECEIVE, onReceivedValues);
 }
 
 void loop()
 {
-  mute = digitalRead(BUTTON_MUTE);
-  unmute = digitalRead(BUTTON_UNMUTE);
+  ssp.loop();
+  
+  buttonMute.update();
+  buttonUnmute.update();
 
-  int cmd = -1;
+  bool shouldMute = buttonMute.rose();
+  bool shouldUnmute = buttonUnmute.rose();
 
-  if (mute == HIGH) {
-    cmd = MUTE_CMD;
-  } else if (unmute == HIGH) {
-    cmd = UNMUTE_CMD;  
+  if (shouldMute || shouldUnmute) {
+    ssp.writeCommand(COMMAND_ID_SEND);
+    ssp.writeByte(CMD_MSG);
+    if (shouldMute) {
+      ssp.writeByte(CMD_MUTE);
+    } else if (shouldUnmute) {
+      ssp.writeByte(CMD_UNMUTE);
+    }
+    ssp.writeEot();
   }
 
-  if (cmd >= 0 && cmd != state) {
-    sprintf(buff, "%d", cmd);
-    Serial.println(buff);
-    state = cmd;
-  }
-
-  if (state == MUTE_CMD) {
+  if (state == STATE_MUTED) {
     digitalWrite(LED_UNMUTE, LOW);
     digitalWrite(LED_MUTE, HIGH);
-  } else if (state == UNMUTE_CMD) {
+  } else if (state == STATE_UNMUTED) {
     digitalWrite(LED_UNMUTE, HIGH);
     digitalWrite(LED_MUTE, LOW);
   }
+}
+
+void onReceivedValues() {
+    digitalWrite(LED_MUTE, HIGH);
+    // Receive Data
+    byte msgType = ssp.readByte();
+
+    if (msgType == STATE_MSG) {
+      state = ssp.readByte();
+    }
+    
+    ssp.readEot();
+}
+
+void onError(uint8_t errorNum) {
 }
