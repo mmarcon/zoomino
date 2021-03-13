@@ -99,7 +99,7 @@ end menu_exists_recurse
 -- We don't need to activate it, the script can check the presence
 -- of the menu item anyways
 set zoom to "zoom.us"
-menu_exists({zoom, "Meeting", "${ZoomCommands.UNMUTE}"})
+menu_exists({zoom, "Meeting", "${ZoomCommands.MUTE}"})
 `;
 
 async function mute () {
@@ -125,7 +125,7 @@ async function unmute () {
 async function state () {
   let result = ZoomState.UNKNOWN;
   try {
-    result = parseInt(await runAppleScriptAsync(isMutedScript()), 10) ? ZoomState.MUTED : ZoomState.UNMUTED;
+    result = parseInt(await runAppleScriptAsync(isMutedScript()), 10) ? ZoomState.UNMUTED : ZoomState.MUTED;
   } catch {}
   return result;
 }
