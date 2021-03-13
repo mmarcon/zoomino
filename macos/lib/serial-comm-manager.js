@@ -43,7 +43,7 @@ class SerialCommunicationManager extends EventEmitter {
     }
   }
 
-  async write (msgType, msgContent) {
+  write (msgType, msgContent) {
     const command = new WriteCommandConfig('r');
     command.addByteValue(msgType).addByteValue(msgContent);
     this.arduino.writeCommand(command);

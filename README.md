@@ -24,5 +24,4 @@ Sure, I will happily take your money. However, for now this is more a toy than a
 
  * macOS only
  * No ready to install binaries yet. You'll need to run the Node.js file by yourself.
- * Sometimes Zoom and the LEDs are out of sync for a few seconds.
 

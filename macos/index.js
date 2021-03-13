@@ -3,22 +3,15 @@ import { SerialCommunicationManager, getSerialPortForArduino } from './lib/seria
 import { Zoom, ZoomState } from './lib/zoom.js';
 import pino from 'pino';
 
-const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
-
-async function syncZoomState (scm) {
-  const state = await Zoom.state();
-  if (state !== ZoomState.UNKNOWN) {
-    logger.debug('zoom state %s', state);
-    scm.write(SerialProtocol.STATE_MSG, state === ZoomState.MUTED ? SerialProtocol.StateValue.MUTED : SerialProtocol.StateValue.UNMUTED);
-  } else {
-    logger.debug('unknown zoom state');
-  }
-  setTimeout(syncZoomState.bind(null, scm), 2000);
-}
-
 async function start () {
+  const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
+
   const scm = new SerialCommunicationManager(await getSerialPortForArduino());
   scm.setLogger(logger.child({ module: 'serial comm mgr' }));
+
+  const zoom = new Zoom();
+  zoom.setLogger(logger.child({ module: 'zoom' }));
+
   scm.on('message', async ({ msgType, msgContent }) => {
     if (msgType !== SerialProtocol.CMD_MSG) {
       return null;
@@ -27,25 +20,29 @@ async function start () {
       case SerialProtocol.CmdValue.MUTE:
         logger.info('received mute command');
         try {
-          await Zoom.mute();
-          return scm.write(SerialProtocol.STATE_MSG, SerialProtocol.StateValue.MUTED);
+          await zoom.mute();
         } catch {
           logger.error('could not mute');
-          break;
         }
+        break;
       case SerialProtocol.CmdValue.UNMUTE:
         logger.info('received unmute command');
         try {
-          await Zoom.unmute();
-          return scm.write(SerialProtocol.STATE_MSG, SerialProtocol.StateValue.UNMUTED);
+          await zoom.unmute();
         } catch {
           logger.error('could not unmute');
-          break;
         }
+        break;
     }
   });
+
+  zoom.on('state-update', (state) => {
+    logger.debug('zoom state update %s', state);
+    scm.write(SerialProtocol.STATE_MSG, state === ZoomState.MUTED ? SerialProtocol.StateValue.MUTED : SerialProtocol.StateValue.UNMUTED);
+  });
+
   await scm.start();
-  syncZoomState(scm);
+  zoom.start();
 }
 
 start();

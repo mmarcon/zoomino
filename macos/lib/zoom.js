@@ -1,3 +1,4 @@
+import EventEmitter from 'node:events';
 import { runAppleScriptAsync } from 'run-applescript';
 
 const ZoomCommands = {
@@ -102,34 +103,72 @@ set zoom to "zoom.us"
 menu_exists({zoom, "Meeting", "${ZoomCommands.MUTE}"})
 `;
 
-async function mute () {
-  let result = false;
-  try {
-    result = await runAppleScriptAsync(muteUnmuteScript(ZoomCommands.MUTE));
-  } catch {
-    return false;
+class Zoom extends EventEmitter {
+  constructor (pollInterval = 2000) {
+    super();
+    this.timer = undefined;
+    this.pollInterval = pollInterval;
+    const noop = () => {};
+    this.logger = { info: noop, error: noop, debug: noop };
   }
-  return result;
-}
 
-async function unmute () {
-  let result = false;
-  try {
-    result = await runAppleScriptAsync(muteUnmuteScript(ZoomCommands.UNMUTE));
-  } catch {
-    return false;
+  setLogger (logger) {
+    this.logger = logger;
   }
-  return result;
-}
 
-async function state () {
-  let result = ZoomState.UNKNOWN;
-  try {
-    result = parseInt(await runAppleScriptAsync(isMutedScript()), 10) ? ZoomState.UNMUTED : ZoomState.MUTED;
-  } catch {}
-  return result;
-}
+  start () {
+    this.timer = setTimeout(this._pollState.bind(this), this.pollInterval);
+  }
 
-const Zoom = { mute, unmute, state };
+  stop () {
+    clearTimeout(this.timer);
+  }
+
+  async _pollState () {
+    const state = await this.state();
+    if (state !== ZoomState.UNKNOWN) {
+      this.emit('state-update', state);
+    } else {
+      this.logger.debug('unknown zoom state');
+    }
+    this.timer = setTimeout(this._pollState.bind(this), this.pollInterval);
+  }
+
+  async mute () {
+    let result = false;
+    try {
+      this.stop();
+      result = await runAppleScriptAsync(muteUnmuteScript(ZoomCommands.MUTE));
+      this.emit('state-update', ZoomState.MUTED);
+    } catch {
+      return false;
+    } finally {
+      this.start();
+    }
+    return result;
+  }
+
+  async unmute () {
+    let result = false;
+    try {
+      this.stop();
+      result = await runAppleScriptAsync(muteUnmuteScript(ZoomCommands.UNMUTE));
+      this.emit('state-update', ZoomState.UNMUTED);
+    } catch {
+      return false;
+    } finally {
+      this.start();
+    }
+    return result;
+  }
+
+  async state () {
+    let result = ZoomState.UNKNOWN;
+    try {
+      result = parseInt(await runAppleScriptAsync(isMutedScript()), 10) ? ZoomState.UNMUTED : ZoomState.MUTED;
+    } catch {}
+    return result;
+  }
+}
 
 export { Zoom, ZoomState };
