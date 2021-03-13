@@ -23,6 +23,6 @@ Sure, I will happily take your money. However, for now this is more a toy than a
 ## Known issues
 
  * macOS only
- * Communication is not bidirectional. This means that if you mute/unmute from the Zoom UI the board won't know about it and things go a bit out of sync
  * No ready to install binaries yet. You'll need to run the Node.js file by yourself.
+ * Sometimes Zoom and the LEDs are out of sync for a few seconds.
 

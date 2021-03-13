@@ -122,7 +122,7 @@ async function unmute () {
   return result;
 }
 
-async function isMuted () {
+async function state () {
   let result = ZoomState.UNKNOWN;
   try {
     result = parseInt(await runAppleScriptAsync(isMutedScript()), 10) ? ZoomState.MUTED : ZoomState.UNMUTED;
@@ -130,6 +130,6 @@ async function isMuted () {
   return result;
 }
 
-const Zoom = { mute, unmute, isMuted };
+const Zoom = { mute, unmute, state };
 
 export { Zoom, ZoomState };

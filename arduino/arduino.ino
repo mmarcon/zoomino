@@ -39,7 +39,7 @@ void setup()
   pinMode(LED_MUTE, OUTPUT);
   pinMode(BUTTON_UNMUTE, OUTPUT);
   pinMode(BUTTON_MUTE, INPUT);
-  digitalWrite(LED_UNMUTE, HIGH);
+  digitalWrite(LED_UNMUTE, LOW);
   digitalWrite(LED_MUTE, LOW);
   Serial.begin(9600);
 
@@ -78,7 +78,6 @@ void loop()
 }
 
 void onReceivedValues() {
-    digitalWrite(LED_MUTE, HIGH);
     // Receive Data
     byte msgType = ssp.readByte();
 
