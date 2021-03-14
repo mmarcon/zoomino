@@ -1,6 +1,6 @@
 {
   "name": "zoomino",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "macOS side of Zoomino, controls Zoom.us via Apple Script",
   "main": "zoomino.js",
   "bin": {
