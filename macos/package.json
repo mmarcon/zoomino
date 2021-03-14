@@ -1,5 +1,5 @@
 {
-  "name": "zoomino-macos",
+  "name": "zoomino",
   "version": "1.0.0",
   "description": "macOS side of Zoomino, controls Zoom.us via Apple Script",
   "main": "zoomino.js",
@@ -9,6 +9,9 @@
   "scripts": {
     "start": "node zoomino.js | pino-pretty"
   },
+  "os": [
+    "darwin"
+  ],
   "author": "Massimiliano Marcon <me@marcon.me>",
   "license": "MIT",
   "dependencies": {
