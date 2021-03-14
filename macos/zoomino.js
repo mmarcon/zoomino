@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as SerialProtocol from './lib/serial-protocol.js';
 import { SerialCommunicationManager, getSerialPortForArduino } from './lib/serial-comm-manager.js';
 import { Zoom, ZoomState } from './lib/zoom.js';
@@ -6,7 +8,14 @@ import pino from 'pino';
 async function start () {
   const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 
-  const scm = new SerialCommunicationManager(await getSerialPortForArduino());
+  const serialPort = await getSerialPortForArduino();
+
+  if (!serialPort) {
+    logger.error('arduino not connected');
+    process.exit(1);
+  }
+
+  const scm = new SerialCommunicationManager(serialPort);
   scm.setLogger(logger.child({ module: 'serial comm mgr' }));
 
   const zoom = new Zoom();
