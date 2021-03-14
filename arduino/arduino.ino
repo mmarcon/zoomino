@@ -35,14 +35,15 @@ Throttle buttonUnmute = Throttle(BUTTON_UNMUTE);
 
 void setup()
 {
+  // Configure pins
   pinMode(LED_UNMUTE, OUTPUT);
   pinMode(LED_MUTE, OUTPUT);
   pinMode(BUTTON_UNMUTE, OUTPUT);
   pinMode(BUTTON_MUTE, INPUT);
   digitalWrite(LED_UNMUTE, LOW);
   digitalWrite(LED_MUTE, LOW);
-  Serial.begin(9600);
 
+  // Set up serial communication
   ssp.init();
   ssp.registerCommand(COMMAND_ID_RECEIVE, onReceivedValues);
 }
@@ -78,11 +79,12 @@ void loop()
 }
 
 void onReceivedValues() {
-    // Receive Data
+    // Receive data
     byte msgType = ssp.readByte();
+    byte msgContent = ssp.readByte();
 
     if (msgType == STATE_MSG) {
-      state = ssp.readByte();
+      state = msgContent;
     }
     
     ssp.readEot();
