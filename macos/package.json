@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "macOS side of Zoomino, controls Zoom.us via Apple Script",
   "main": "zoomino.js",
+  "bin": {
+    "zoomino": "./zoomino.js"
+  },
   "scripts": {
     "start": "node zoomino.js | pino-pretty"
   },
