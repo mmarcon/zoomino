@@ -40,7 +40,7 @@ adjust accordingly.
 Zoomino uses AppleScript to access the Zoom controls and periodically check whether it's muted or unmuted.
 For this reason, macOS will probably ask you to allow it to contol your computer using accessibility features.
 
-You can check exactly what Zoomino does with AppleScript [here](./macos/lib/zoom.js) (`muteUnmuteScript` and `isMutedScript`).
+You can check exactly what Zoomino does with AppleScript [here](./lib/zoom.js) (`muteUnmuteScript` and `isMutedScript`).
 
 ## Known issues
 
