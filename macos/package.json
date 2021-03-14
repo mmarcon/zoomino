@@ -1,7 +1,14 @@
 {
   "name": "zoomino",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "macOS side of Zoomino, controls Zoom.us via Apple Script",
+  "keywords": [
+    "zoom",
+    "arduino",
+    "mute",
+    "unmute",
+    "AppleScript"
+  ],
   "main": "zoomino.js",
   "bin": {
     "zoomino": "./zoomino.js"
@@ -14,6 +21,7 @@
   ],
   "author": "Massimiliano Marcon <me@marcon.me>",
   "license": "MIT",
+  "repository": "github:mmarcon/zoomino",
   "dependencies": {
     "@yesbotics/simple-serial-protocol-node": "^2.2.0",
     "pino": "^6.11.1",
