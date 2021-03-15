@@ -1,27 +1,24 @@
 #!/usr/bin/env node
 
 import * as SerialProtocol from './lib/serial-protocol.js';
-import { SerialCommunicationManager, getSerialPortForArduino } from './lib/serial-comm-manager.js';
+import { SerialCommunicationManager } from './lib/serial-comm-manager.js';
+import { ArduinoMonitor } from './lib/arduino-monitor.js';
 import { Zoom, ZoomState } from './lib/zoom.js';
 import pino from 'pino';
 
 async function start () {
   const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 
-  const serialPort = await getSerialPortForArduino();
-
-  if (!serialPort) {
-    logger.error('arduino not connected');
-    process.exit(1);
-  }
-
-  const scm = new SerialCommunicationManager(serialPort);
-  scm.setLogger(logger.child({ module: 'serial comm mgr' }));
-
   const zoom = new Zoom();
   zoom.setLogger(logger.child({ module: 'zoom' }));
 
-  scm.on('message', async ({ msgType, msgContent }) => {
+  const am = new ArduinoMonitor();
+  am.setLogger(logger.child({ module: 'arduino monitor' }));
+
+  let scm;
+  const scmLogger = logger.child({ module: 'serial comm mgr' });
+
+  const onMessage = ({ msgType, msgContent }) => setImmediate(async () => {
     if (msgType !== SerialProtocol.CMD_MSG) {
       return null;
     }
@@ -45,12 +42,34 @@ async function start () {
     }
   });
 
+  const onConnected = async (port) => {
+    if (!scm) {
+      scm = new SerialCommunicationManager(port);
+      scm.setLogger(scmLogger);
+      scm.on('message', onMessage);
+    }
+    await scm.start();
+  };
+
+  const onDisconnected = () => {
+    if (!scm) {
+      return;
+    }
+    scm.off('message', onMessage);
+    scm.stop();
+  };
+
   zoom.on('state-update', (state) => {
     logger.debug('zoom state update %s', state);
-    scm.write(SerialProtocol.STATE_MSG, state === ZoomState.MUTED ? SerialProtocol.StateValue.MUTED : SerialProtocol.StateValue.UNMUTED);
+    if (scm) {
+      scm.write(SerialProtocol.STATE_MSG, state === ZoomState.MUTED ? SerialProtocol.StateValue.MUTED : SerialProtocol.StateValue.UNMUTED);
+    }
   });
 
-  await scm.start();
+  am.on('arduino-connected', onConnected);
+  am.on('arduino-disconnected', onDisconnected);
+  am.start();
+
   zoom.start();
 }
 
