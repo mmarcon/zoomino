@@ -3,13 +3,8 @@ import {
   WriteCommandConfig,
   ReadCommandConfig
 } from '@yesbotics/simple-serial-protocol-node';
-import SerialPort from 'serialport';
+import { noopLogger } from './noop-logger.js';
 import EventEmitter from 'events';
-
-async function getSerialPortForArduino () {
-  const ports = await SerialPort.list();
-  return ports.find(p => /arduino/ig.test(p.manufacturer))?.path;
-}
 
 class SerialCommunicationManager extends EventEmitter {
   constructor (path, baudRate = 9600) {
@@ -17,15 +12,7 @@ class SerialCommunicationManager extends EventEmitter {
     this.path = path;
     this.baudRate = baudRate;
     this.arduino = undefined;
-    const noop = () => {};
-    this.logger = { info: noop, error: noop, debug: noop };
-  }
-
-  setLogger (logger) {
-    this.logger = logger;
-  }
-
-  async start () {
+    this.logger = noopLogger;
     this.arduino = new SimpleSerialProtocol(this.path, this.baudRate);
     const readConfig = new ReadCommandConfig('s', (/* byte */ msgType, /* byte */ msgContent) => {
       this.logger.debug('Received message from arduino');
@@ -34,6 +21,13 @@ class SerialCommunicationManager extends EventEmitter {
     });
     readConfig.addByteParam().addByteParam();
     this.arduino.registerCommand(readConfig);
+  }
+
+  setLogger (logger) {
+    this.logger = logger;
+  }
+
+  async start () {
     try {
       await this.arduino.init(2000);
       this.logger.info('connected');
@@ -51,11 +45,15 @@ class SerialCommunicationManager extends EventEmitter {
 
   async stop () {
     try {
-      await this.arduino.dispose();
+      this.logger.debug('stopping serial connection');
+      // Soft dispose
+      // Relies on internals :(
+      this.arduino.oneByteParser.removeAllListeners();
+      this.arduino._isInitialized = false;
     } catch (err) {
       this.logger.error(err);
     }
   }
 }
 
-export { SerialCommunicationManager, getSerialPortForArduino };
+export { SerialCommunicationManager };
