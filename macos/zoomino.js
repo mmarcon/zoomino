@@ -45,6 +45,8 @@ async function start () {
 
   const onConnected = async (port) => {
     if (!scm) {
+      // `port` is only used to set up the instance the firs time
+      // An improvement would be to support potential port changes
       scm = new SerialCommunicationManager(port);
       scm.setLogger(scmLogger);
     }

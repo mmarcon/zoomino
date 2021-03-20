@@ -35,7 +35,7 @@ class ArduinoMonitor extends EventEmitter {
   async _monitorConnection () {
     const port = await getSerialPortForArduino();
     if (port && !this.connected) {
-      this.logger.debug('arduino connected');
+      this.logger.debug('arduino connected on port %s', port);
       this.connected = true;
       this.emit('arduino-connected', port);
     }
