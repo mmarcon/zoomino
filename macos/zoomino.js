@@ -22,6 +22,7 @@ async function start () {
     if (msgType !== SerialProtocol.CMD_MSG) {
       return null;
     }
+    logger.debug('received command %d', msgContent);
     switch (msgContent) {
       case SerialProtocol.CmdValue.MUTE:
         logger.info('received mute command');
@@ -46,8 +47,8 @@ async function start () {
     if (!scm) {
       scm = new SerialCommunicationManager(port);
       scm.setLogger(scmLogger);
-      scm.on('message', onMessage);
     }
+    scm.on('message', onMessage);
     await scm.start();
   };
 

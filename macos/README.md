@@ -5,7 +5,6 @@ mute and unmute Zoom by pushing a physical button.
 
 ## How to use it
 
-
 ### Set up the hardware
 
 Build the circuit and connect it via USB to your computer.
@@ -35,6 +34,11 @@ the right LED on.
 You can use the buttons on the board or the built-in Zoom controls to mute and unmute yourself and the LEDs will
 adjust accordingly.
 
+### Plug/Unplug the Arduino
+
+If you leave Zoomino run in the background, it should detect when the Arduino is connected and disconnected and behave
+accordingly, setting up and disposing the serial connection and protocol.
+
 #### Allow the terminal to control your computer
 
 Zoomino uses AppleScript to access the Zoom controls and periodically check whether it's muted or unmuted.
@@ -44,5 +48,4 @@ You can check exactly what Zoomino does with AppleScript [here](./lib/zoom.js) (
 
 ## Known issues
 
-* The Arduino needs to be connected before running Zoomino.
 * Zoomino needs to be run manually from the terminal. If you want to run it as a service, you will have to configure it yourself.

@@ -46,6 +46,10 @@ class SerialCommunicationManager extends EventEmitter {
   async stop () {
     try {
       this.logger.debug('stopping serial connection');
+      // Soft dispose
+      // Relies on internals :(
+      this.arduino.oneByteParser.removeAllListeners();
+      this.arduino._isInitialized = false;
     } catch (err) {
       this.logger.error(err);
     }
