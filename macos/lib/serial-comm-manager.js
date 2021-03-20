@@ -5,15 +5,15 @@ import {
 } from '@yesbotics/simple-serial-protocol-node';
 import { noopLogger } from './noop-logger.js';
 import EventEmitter from 'events';
+import SerialPort from 'serialport';
 
 class SerialCommunicationManager extends EventEmitter {
   constructor (path, baudRate = 9600) {
     super();
-    this.path = path;
     this.baudRate = baudRate;
     this.arduino = undefined;
     this.logger = noopLogger;
-    this.arduino = new SimpleSerialProtocol(this.path, this.baudRate);
+    this.arduino = new SimpleSerialProtocol(path, this.baudRate);
     const readConfig = new ReadCommandConfig('s', (/* byte */ msgType, /* byte */ msgContent) => {
       this.logger.debug('Received message from arduino');
       this.logger.debug({ msgType, msgContent });
@@ -25,6 +25,19 @@ class SerialCommunicationManager extends EventEmitter {
 
   setLogger (logger) {
     this.logger = logger;
+  }
+
+  resetSerialPort (path) {
+    // Resets the SerialPort instance
+    // Unfortunately, we have to touch the internals
+    // of SimpleSerialProtocol as they don't expose a good
+    // API to dispose and instance and recreate a new one
+    // given that some instance methods rely on a static singleton
+    // that can't be reset in any way
+    this.arduino.serialPort = new SerialPort(path, {
+      autoOpen: false,
+      baudRate: this.baudRate
+    });
   }
 
   async start () {

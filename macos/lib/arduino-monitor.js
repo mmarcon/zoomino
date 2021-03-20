@@ -23,6 +23,7 @@ class ArduinoMonitor extends EventEmitter {
     const port = await getSerialPortForArduino();
     this.connected = !!port;
     if (this.connected) {
+      this.logger.debug('==>[] arduino connected on port %s', port);
       this.emit('arduino-connected', port);
     }
     this.timer = setTimeout(this._monitorConnection.bind(this), 1000);
@@ -35,12 +36,12 @@ class ArduinoMonitor extends EventEmitter {
   async _monitorConnection () {
     const port = await getSerialPortForArduino();
     if (port && !this.connected) {
-      this.logger.debug('arduino connected on port %s', port);
+      this.logger.debug('==>[] arduino connected on port %s', port);
       this.connected = true;
       this.emit('arduino-connected', port);
     }
     if (!port && this.connected) {
-      this.logger.debug('arduino disconnected');
+      this.logger.debug('<==[] arduino disconnected');
       this.connected = false;
       this.emit('arduino-disconnected');
     }

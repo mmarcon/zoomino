@@ -45,11 +45,12 @@ async function start () {
 
   const onConnected = async (port) => {
     if (!scm) {
-      // `port` is only used to set up the instance the firs time
-      // An improvement would be to support potential port changes
-      scm = new SerialCommunicationManager(port);
+      // Not passing the real port here.
+      // The real port is actually set below with resetSerialPort()
+      scm = new SerialCommunicationManager('/placeholder.port');
       scm.setLogger(scmLogger);
     }
+    scm.resetSerialPort(port);
     scm.on('message', onMessage);
     await scm.start();
   };
