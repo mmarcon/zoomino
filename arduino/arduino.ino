@@ -26,6 +26,7 @@ void onReceivedValues();
 /************************/
 #define STATE_MUTED    0x0
 #define STATE_UNMUTED  0x1
+#define STATE_UNKNOWN  0x2
 
 int state = -1;
 
@@ -69,12 +70,19 @@ void loop()
     ssp.writeEot();
   }
 
-  if (state == STATE_MUTED) {
-    digitalWrite(LED_UNMUTE, LOW);
-    digitalWrite(LED_MUTE, HIGH);
-  } else if (state == STATE_UNMUTED) {
-    digitalWrite(LED_UNMUTE, HIGH);
-    digitalWrite(LED_MUTE, LOW);
+  switch (state) {
+    case STATE_MUTED:
+      digitalWrite(LED_UNMUTE, LOW);
+      digitalWrite(LED_MUTE, HIGH);
+      break;
+    case STATE_UNMUTED:
+      digitalWrite(LED_UNMUTE, HIGH);
+      digitalWrite(LED_MUTE, LOW);
+      break;
+    case STATE_UNKNOWN:
+      digitalWrite(LED_UNMUTE, LOW);
+      digitalWrite(LED_MUTE, LOW);
+      break;
   }
 }
 

@@ -3,7 +3,8 @@ const STATE_MSG = 0x1;
 
 const StateValue = {
   MUTED: 0x0,
-  UNMUTED: 0x1
+  UNMUTED: 0x1,
+  UNKNOWN: 0x2
 };
 
 const CmdValue = {

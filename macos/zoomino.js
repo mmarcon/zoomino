@@ -65,8 +65,20 @@ async function start () {
 
   zoom.on('state-update', (state) => {
     logger.debug('zoom state update %s', state);
+    let stateValue;
+    switch (state) {
+      case ZoomState.MUTED:
+        stateValue = SerialProtocol.StateValue.MUTED;
+        break;
+      case ZoomState.UNMUTED:
+        stateValue = SerialProtocol.StateValue.UNMUTED;
+        break;
+      case ZoomState.UNKNOWN:
+        stateValue = SerialProtocol.StateValue.UNKNOWN;
+        break;
+    }
     if (scm) {
-      scm.write(SerialProtocol.STATE_MSG, state === ZoomState.MUTED ? SerialProtocol.StateValue.MUTED : SerialProtocol.StateValue.UNMUTED);
+      scm.write(SerialProtocol.STATE_MSG, stateValue);
     }
   });
 

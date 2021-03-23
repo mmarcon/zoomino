@@ -126,11 +126,7 @@ class Zoom extends EventEmitter {
 
   async _pollState () {
     const state = await this.state();
-    if (state !== ZoomState.UNKNOWN) {
-      this.emit('state-update', state);
-    } else {
-      this.logger.debug('unknown zoom state');
-    }
+    this.emit('state-update', state);
     this.timer = setTimeout(this._pollState.bind(this), this.pollInterval);
   }
 
